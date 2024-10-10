@@ -11,12 +11,11 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { UserPlus, BookOpen, Settings, AlertCircle, BarChart2, Users, Database } from 'lucide-react'
-import { Bar, BarChart, Line, LineChart, XAxis, YAxis, CartesianGrid,  Legend, ResponsiveContainer } from "recharts"
+import { Bar, BarChart, Line, LineChart, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
-export default function AdminDashboard() {  // Mock data
-
-
+export default function AdminDashboard() {
+  // Mock data (unchanged)
   const userRoles = ['Student', 'Lecturer', 'Admin']
   const departments = ['Computer Science', 'Engineering', 'Business', 'Arts', 'Sciences']
   const reportTypes = ['User Activity', 'Course Enrollment', 'System Performance', 'Financial Summary']
@@ -58,120 +57,93 @@ export default function AdminDashboard() {  // Mock data
   ]
 
   return (
-    <div className="container mx-auto p-4">
-      <header className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Welcome, {admin.name}</h1>
-          <p className="text-muted-foreground">Admin ID: {admin.id} | Role: {admin.role}</p>
-        </div>
-        <Avatar className="h-12 w-12">
-          <AvatarImage src="/placeholder.svg?height=48&width=48" alt={admin.name} />
-          <AvatarFallback>{admin.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6">
+      <header className="flex flex-col items-center mb-8">
+        <Avatar className="h-20 w-20 mb-4 ring-4 ring-blue-500">
+          <AvatarImage src="/placeholder.svg?height=80&width=80" alt={admin.name} />
+          <AvatarFallback className="bg-blue-600 text-white text-2xl">{admin.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
         </Avatar>
+        <h1 className="text-4xl font-bold text-center text-blue-300">Welcome, {admin.name}</h1>
+        <p className="text-center text-gray-400">Admin ID: {admin.id} | Role: {admin.role}</p>
       </header>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{systemStats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              {systemStats.activeStudents} students, {systemStats.activeLecturers} lecturers
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{systemStats.totalCourses}</div>
-            <p className="text-xs text-muted-foreground">Across all departments</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">System Status</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Operational</div>
-            <p className="text-xs text-muted-foreground">All systems running smoothly</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Last Backup</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2 hours ago</div>
-            <p className="text-xs text-muted-foreground">Next backup in 22 hours</p>
-          </CardContent>
-        </Card>
+        {[
+          { title: "Total Users", icon: Users, value: systemStats.totalUsers, subtext: `${systemStats.activeStudents} students, ${systemStats.activeLecturers} lecturers` },
+          { title: "Total Courses", icon: BookOpen, value: systemStats.totalCourses, subtext: "Across all departments" },
+          { title: "System Status", icon: AlertCircle, value: "Operational", subtext: "All systems running smoothly" },
+          { title: "Last Backup", icon: Database, value: "2 hours ago", subtext: "Next backup in 22 hours" },
+        ].map((stat, index) => (
+          <Card key={index} className="bg-gray-800 border-gray-700 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">{stat.title}</CardTitle>
+              <stat.icon className="h-4 w-4 text-blue-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-300">{stat.value}</div>
+              <p className="text-xs text-gray-500">{stat.subtext}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mt-6">
-        <Card className="col-span-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mt-8">
+        <Card className="col-span-4 bg-gray-800 border-gray-700 shadow-xl">
           <CardHeader>
-            <CardTitle>User Growth</CardTitle>
-            <CardDescription>Monthly increase in students and lecturers</CardDescription>
+            <CardTitle className="text-blue-300">User Growth</CardTitle>
+            <CardDescription className="text-gray-400">Monthly increase in students and lecturers</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer
               config={{
                 students: {
                   label: "Students",
-                  color: "hsl(var(--chart-1))",
+                  color: "hsl(210, 100%, 60%)",
                 },
                 lecturers: {
                   label: "Lecturers",
-                  color: "hsl(var(--chart-2))",
+                  color: "hsl(150, 100%, 60%)",
                 },
               }}
               className="h-[300px]"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={userGrowthData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                  <XAxis dataKey="month" stroke="#a0aec0" />
+                  <YAxis yAxisId="left" stroke="#a0aec0" />
+                  <YAxis yAxisId="right" orientation="right" stroke="#a0aec0" />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Legend />
-                  <Line yAxisId="left" type="monotone" dataKey="students" stroke="var(--color-students)" name="Students" />
-                  <Line yAxisId="right" type="monotone" dataKey="lecturers" stroke="var(--color-lecturers)" name="Lecturers" />
+                  <Line yAxisId="left" type="monotone" dataKey="students" stroke="var(--color-students)" strokeWidth={2} dot={false} />
+                  <Line yAxisId="right" type="monotone" dataKey="lecturers" stroke="var(--color-lecturers)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
-        <Card className="col-span-3">
+        <Card className="col-span-3 bg-gray-800 border-gray-700 shadow-xl">
           <CardHeader>
-            <CardTitle>Course Distribution</CardTitle>
-            <CardDescription>Courses per department</CardDescription>
+            <CardTitle className="text-blue-300">Course Distribution</CardTitle>
+            <CardDescription className="text-gray-400">Courses per department</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer
               config={{
                 courses: {
                   label: "Courses",
-                  color: "hsl(var(--chart-3))",
+                  color: "hsl(280, 100%, 60%)",
                 },
               }}
               className="h-[300px]"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={courseDistributionData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="department" />
-                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                  <XAxis dataKey="department" stroke="#a0aec0" />
+                  <YAxis stroke="#a0aec0" />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="courses" fill="var(--color-courses)" name="Courses" />
+                  <Bar dataKey="courses" fill="var(--color-courses)" />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -179,203 +151,28 @@ export default function AdminDashboard() {  // Mock data
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activities</CardTitle>
-            <CardDescription>Latest system events and user actions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[300px]">
-              <ul className="space-y-4">
-                {recentActivities.map((activity) => (
-                  <li key={activity.id} className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">{activity.action}</p>
-                      {activity.user && <p className="text-sm text-muted-foreground">User: {activity.user}</p>}
-                      {activity.course && <p className="text-sm text-muted-foreground">Course: {activity.course}</p>}
-                    </div>
-                    <Badge variant="outline">{activity.time}</Badge>
-                  </li>
-                ))}
-              </ul>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        <Card>
+      <Card className="mt-8 bg-gray-800 border-gray-700 shadow-xl">
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common administrative tasks</CardDescription>
+          <CardTitle className="text-blue-300">Recent Activities</CardTitle>
+          <CardDescription className="text-gray-400">Latest system events and user actions</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="w-full">
-                  <UserPlus className="mr-2 h-4 w-4" /> Add New User
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Add New User</DialogTitle>
-                  <DialogDescription>Enter the details of the new user here.</DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">Name</Label>
-                    <Input id="name" className="col-span-3" />
+          <ScrollArea className="h-[300px]">
+            <ul className="space-y-4">
+              {recentActivities.map((activity) => (
+                <li key={activity.id} className="flex justify-between items-center border-b border-gray-700 pb-2">
+                  <div>
+                    <p className="font-medium text-blue-300">{activity.action}</p>
+                    {activity.user && <p className="text-sm text-gray-400">User: {activity.user}</p>}
+                    {activity.course && <p className="text-sm text-gray-400">Course: {activity.course}</p>}
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="email" className="text-right">Email</Label>
-                    <Input id="email" type="email" className="col-span-3" />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="role" className="text-right">Role</Label>
-                    <Select>
-                      <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Select a role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {userRoles.map((role) => (
-                          <SelectItem key={role} value={role.toLowerCase()}>{role}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <Button type="submit">Add User</Button>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="w-full">
-                  <BookOpen className="mr-2 h-4 w-4" /> Manage Courses
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[625px]">
-                <DialogHeader>
-                  <DialogTitle>Manage Courses</DialogTitle>
-                  <DialogDescription>View and manage course information.</DialogDescription>
-                </DialogHeader>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Course Code</TableHead>
-                      <TableHead>Course Name</TableHead>
-                      <TableHead>Department</TableHead>
-                      <TableHead>Students</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>CS101</TableCell>
-                      <TableCell>Introduction to Programming</TableCell>
-                      <TableCell>Computer Science</TableCell>
-                      <TableCell>150</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>BUS201</TableCell>
-                      <TableCell>Business Ethics</TableCell>
-                      <TableCell>Business</TableCell>
-                      <TableCell>120</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>ENG301</TableCell>
-                      <TableCell>Advanced Circuit Design</TableCell>
-                      <TableCell>Engineering</TableCell>
-                      <TableCell>80</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-                <Button className="mt-4">Add New Course</Button>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="w-full">
-                  <BarChart2 className="mr-2 h-4 w-4" /> Generate Reports
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Generate Reports</DialogTitle>
-                  <DialogDescription>Select the type of report you want to generate.</DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="report-type" className="text-right">Report Type</Label>
-                    <Select>
-                      <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Select a report type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {reportTypes.map((type) => (
-                          <SelectItem key={type} value={type.toLowerCase().replace(' ', '-')}>{type}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="start-date" className="text-right">Start Date</Label>
-                    <Input id="start-date" type="date" className="col-span-3" />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="end-date" className="text-right">End Date</Label>
-                    <Input id="end-date" type="date" className="col-span-3" />
-                  </div>
-                </div>
-                <Button type="submit">Generate Report</Button>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="w-full">
-                  <Settings className="mr-2 h-4 w-4" /> System Settings
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>System Settings</DialogTitle>
-                  <DialogDescription>Adjust system-wide settings.</DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="maintenance-mode" />
-                    <Label htmlFor="maintenance-mode">Maintenance Mode</Label>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="backup-frequency" className="text-right">Backup Frequency</Label>
-                    <Select>
-                      <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Select frequency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="daily">Daily</SelectItem>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="session-timeout" className="text-right">Session Timeout (minutes)</Label>
-                    <Input id="session-timeout" type="number" className="col-span-3" defaultValue={30} />
-                  </div>
-                </div>
-                <Button type="submit">Save Settings</Button>
-              </DialogContent>
-            </Dialog>
-          </div>
+                  <Badge variant="outline" className="bg-blue-900 text-blue-300 border-blue-500">{activity.time}</Badge>
+                </li>
+              ))}
+            </ul>
+          </ScrollArea>
         </CardContent>
       </Card>
-
-
-      </div>
     </div>
   )
 }
-
-

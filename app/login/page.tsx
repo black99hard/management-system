@@ -6,22 +6,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GraduationCap, UserCircle, ShieldCheck } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { GraduationCap, UserCircle, ShieldCheck, Briefcase, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
-type Role = 'Student' | 'Lecturer' | 'Admin';
+type Role = 'Employee' | 'Lecturer' | 'HOD' | 'Admin';
 
-const roles: { name: Role; icon: React.ElementType }[] = [
-  { name: 'Student', icon: GraduationCap },
-  { name: 'Lecturer', icon: UserCircle },
-  { name: 'Admin', icon: ShieldCheck },
+const roles: { name: Role; icon: React.ElementType; color: string }[] = [
+  { name: 'Employee', icon: Briefcase, color: 'bg-emerald-500' },
+  { name: 'Lecturer', icon: GraduationCap, color: 'bg-blue-500' },
+  { name: 'HOD', icon: UserCircle, color: 'bg-purple-500' },
+  { name: 'Admin', icon: ShieldCheck, color: 'bg-red-500' },
 ];
 
 export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -63,11 +65,14 @@ export default function LoginPage() {
       } else if (result?.ok) {
         // Redirect based on user role
         switch (selectedRole) {
-          case 'Student':
-            router.push('/student/');
+          case 'Employee':
+            router.push('/employee/');
             break;
           case 'Lecturer':
             router.push('/lecturer/');
+            break;
+          case 'HOD':
+            router.push('/department-head/');
             break;
           case 'Admin':
             router.push('/admin/');
@@ -85,50 +90,89 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Student Assessment System</CardTitle>
-          <CardDescription className="text-center">Choose your role to log in</CardDescription>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 p-4">
+      <Card className="w-full max-w-md bg-white/10 backdrop-blur-md border-none shadow-2xl">
+        <CardHeader className="text-white">
+          <CardTitle className="text-3xl font-bold text-center mb-2">Task Management System</CardTitle>
+          <CardDescription className="text-center text-gray-200">Select your role to access the system</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4">
             {roles.map((role) => (
-              <motion.div key={role.name} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                key={role.name}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative"
+              >
                 <Button
                   variant="outline"
-                  className={`w-full h-24 flex flex-col items-center justify-center text-center p-2 ${
-                    selectedRole === role.name ? 'border-primary border-2' : ''
+                  className={`w-full h-32 flex flex-col items-center justify-center text-center p-2 bg-white/5 backdrop-blur-sm border-2 border-white/20 rounded-lg transition-all duration-300 ${
+                    selectedRole === role.name ? 'ring-2 ring-white' : ''
                   }`}
                   onClick={() => handleRoleSelection(role.name)}
                 >
-                  <role.icon className="h-8 w-8 mb-2" />
-                  {role.name}
+                  <div className={`absolute inset-0 ${role.color} opacity-10 rounded-lg`}></div>
+                  <role.icon className="h-12 w-12 mb-2 text-white" />
+                  <span className="text-white font-semibold">{role.name}</span>
                 </Button>
               </motion.div>
             ))}
           </div>
+          <Button
+            variant="outline"
+            className="w-full mt-4 bg-white/5 backdrop-blur-sm border-2 border-white/20 text-white hover:bg-white/10"
+            onClick={() => setIsAboutDialogOpen(true)}
+          >
+            <Info className="mr-2 h-4 w-4" /> About Me
+          </Button>
         </CardContent>
       </Card>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+      <AnimatePresence>
+        {isDialogOpen && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogContent className="bg-white/10 backdrop-blur-md border-none shadow-2xl text-white">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">Login as {selectedRole}</DialogTitle>
+                <DialogDescription className="text-gray-200">Enter your credentials to access the system</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <Label htmlFor="username" className="text-white">Username</Label>
+                  <Input id="username" name="username" required className="bg-white/20 border-white/30 text-white placeholder-white/50" />
+                </div>
+                <div>
+                  <Label htmlFor="password" className="text-white">Password</Label>
+                  <Input id="password" name="password" type="password" required className="bg-white/20 border-white/30 text-white placeholder-white/50" />
+                </div>
+                {error && <p className="text-red-300 text-sm">{error}</p>}
+                <Button type="submit" className="w-full bg-white text-indigo-600 hover:bg-indigo-100">Login</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
+
+      <Dialog open={isAboutDialogOpen} onOpenChange={setIsAboutDialogOpen}>
+        <DialogContent className="bg-white/10 backdrop-blur-md border-none shadow-2xl text-white">
           <DialogHeader>
-            <DialogTitle>Login as {selectedRole}</DialogTitle>
-            <DialogDescription>Enter your credentials to log in</DialogDescription>
+            <DialogTitle className="text-2xl font-bold">About Me</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" name="username" required />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required />
-            </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-            <Button type="submit" className="w-full">Login</Button>
-          </form>
+          <div className="space-y-4">
+            <p>Hello! I'm a final year student working on my capstone project.</p>
+            <p>This Task Management System is part of my final year project in Computer Science.</p>
+            <p>The goal of this project is to create an efficient and user-friendly system for managing tasks across different roles in an educational institution.</p>
+            <p>Technologies used:</p>
+            <ul className="list-disc list-inside">
+              <li>React with Next.js</li>
+              <li>TypeScript</li>
+              <li>Tailwind CSS</li>
+              <li>Framer Motion for animations</li>
+              <li>NextAuth.js for authentication</li>
+            </ul>
+            <p>Thank you for checking out my project!</p>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

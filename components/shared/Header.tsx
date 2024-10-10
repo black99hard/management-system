@@ -4,32 +4,37 @@ import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { GraduationCap } from 'lucide-react'
+
 export default function Header() {
   const { data: session } = useSession()
 
   return (
-    <header className="bg-primary text-primary-foreground shadow-md">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-2 text-2xl font-bold mb-4 sm:mb-0">
-        <GraduationCap className="h-8 w-8" />
-        <span className="">SAS</span>
-        </div>
-          
+    <header className="bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-md">
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold">
+          <GraduationCap className="h-6 w-6" />
+          <span>Management System</span>
+        </Link>
+        
         {session ? (
           <div className="flex items-center gap-4">
-            <span>Welcome, {session.user.name}</span>
-            <Button onClick={() => signOut({ callbackUrl: '/login' })}>
+            <span className="hidden sm:inline">Welcome, {session.user.name}</span>
+            <Button 
+              variant="secondary" 
+              className="bg-white text-green-600 hover:bg-green-100"
+              onClick={() => signOut({ callbackUrl: '/login' })}
+            >
               Sign out
             </Button>
           </div>
         ) : (
           <Link href="/login">
-            <Button>Sign in</Button>
+            <Button variant="secondary" className="bg-white text-green-600 hover:bg-green-100">
+              Sign in
+            </Button>
           </Link>
         )}
       </div>
     </header>
   )
 }
-
-

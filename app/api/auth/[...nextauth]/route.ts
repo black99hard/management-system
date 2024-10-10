@@ -9,19 +9,19 @@ const authOptions: NextAuthOptions = {
       credentials: {
         username: { label: "Username", type: "text", placeholder: "jsmith" },
         password: { label: "Password", type: "password" },
-        role: { label: "Role", type: "text", placeholder: "student, lecturer, admin" },
+        role: { label: "Role", type: "text", placeholder: "student, lecturer, admin, hod, employee" },
       },
       async authorize(credentials) {
         const username = credentials?.username;
         const password = credentials?.password;
-        const role = credentials?.role?.toLowerCase() || 'student';
+        const role = credentials?.role?.toLowerCase() || 'admin';
 
         // Dummy logic for authentication (replace with real logic)
         if (username && password) {
           const user = {
             id: "1",
-            name: "SALAHUDEEN RIDWAN",
-            email: "SALAHUDEEN.RIDWAN@example.com",
+            name: "Student",
+            email: "student@example.com",
             role: role,
           };
           return user;
