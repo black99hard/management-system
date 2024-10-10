@@ -3,12 +3,10 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { BarChart, Calendar, Clock, FileText, HelpCircle, Library, Mail, MessageSquare, PieChart, Settings, Ticket, Tool, Users } from 'lucide-react'
+import { BarChart, Calendar, Clock, FileText, HelpCircle, Library, Mail, MessageSquare, PieChart, Settings, Ticket,  Users } from 'lucide-react'
 import {
   LineChart,
   Line,
@@ -18,7 +16,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Bar
+
 } from 'recharts'
 
 // Mock data
@@ -190,7 +188,6 @@ export default function EmployeeSupportStaffDashboard() {
                     <ul className="space-y-2">
                       <li>
                         <Button variant="link" className="p-0">
-                          <Tool className="mr-2 h-4 w-4" />
                           Software Installation Guide
                         </Button>
                       </li>
