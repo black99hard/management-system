@@ -14,10 +14,10 @@ import { signIn } from 'next-auth/react';
 type Role = 'Employee' | 'Lecturer' | 'HOD' | 'Admin';
 
 const roles: { name: Role; icon: React.ElementType; color: string }[] = [
-  { name: 'Employee', icon: Briefcase, color: 'bg-emerald-500' },
-  { name: 'Lecturer', icon: GraduationCap, color: 'bg-blue-500' },
+  // { name: 'Employee', icon: Briefcase, color: 'bg-emerald-500' },
+  // { name: 'Lecturer', icon: GraduationCap, color: 'bg-blue-500' },
   { name: 'HOD', icon: UserCircle, color: 'bg-purple-500' },
-  { name: 'Admin', icon: ShieldCheck, color: 'bg-red-500' },
+  // { name: 'Admin', icon: ShieldCheck, color: 'bg-red-500' },
 ];
 
 export default function LoginPage() {
@@ -65,18 +65,18 @@ export default function LoginPage() {
       } else if (result?.ok) {
         // Redirect based on user role
         switch (selectedRole) {
-          case 'Employee':
-            router.push('/employee/');
-            break;
-          case 'Lecturer':
-            router.push('/lecturer/');
-            break;
+          // case 'Employee':
+          //   router.push('/employee/');
+          //   break;
+          // case 'Lecturer':
+          //   router.push('/lecturer/');
+          //   break;
           case 'HOD':
             router.push('/department-head/');
             break;
-          case 'Admin':
-            router.push('/admin/');
-            break;
+          // case 'Admin':
+          //   router.push('/admin/');
+          //   break;
           default:
             router.push('/');
         }
