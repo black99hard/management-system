@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRouter } from 'next/navigation';
-import { UserCircle, BookOpen, ListChecks, Users, Calendar, BarChart, FileText, MessageSquare, DollarSign } from 'lucide-react';
+import { UserCircle, BookOpen, ListChecks, Users, Calendar, FileText, MessageSquare, DollarSign, Briefcase, Award, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
   LineChart,
@@ -20,24 +21,28 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  BarChart,
+  Bar
 } from 'recharts';
 
 type DepartmentData = {
   name: string;
   establishedYear: number;
   totalStudents: { undergraduate: number; graduate: number };
-  totalFaculty: { lecturers: number; professors: number };
+  totalFaculty: { lecturers: number; professors: number; [key: string]: number };
   activeCourses: number;
   upcomingEvents: { name: string; date: string }[];
-  facultyMembers: { name: string; designation: string; email: string }[];
-  courses: { code: string; name: string; enrolledStudents: number }[];
-  studentReports: { name: string; year: string; gpa: number }[];
+  facultyMembers: { id: string; name: string; designation: string; email: string }[];
+  courses: { id: string; code: string; name: string; enrolledStudents: number; lecturer?: string }[];
+  studentReports: { id: string; name: string; year: string; gpa: number }[];
   performanceData: { month: string; studentPerformance: number; facultyPerformance: number }[];
   courseEnrollment: { name: string; students: number }[];
+  allStudents: { id: string; name: string; year: string; major: string; gpa: number }[];
 };
 
-const mockDepartmentData: DepartmentData = {
+
+const initialDepartmentData: DepartmentData = {
   name: "Computer Science",
   establishedYear: 1985,
   totalStudents: { undergraduate: 500, graduate: 150 },
@@ -50,25 +55,25 @@ const mockDepartmentData: DepartmentData = {
     { name: "Orientation Week", date: "2024-08-25" },
   ],
   facultyMembers: [
-    { name: "John Doe", designation: "Professor", email: "john.doe@university.edu" },
-    { name: "Jane Smith", designation: "Lecturer", email: "jane.smith@university.edu" },
-    { name: "Alice Johnson", designation: "Associate Professor", email: "alice.johnson@university.edu" },
-    { name: "Bob Williams", designation: "Assistant Professor", email: "bob.williams@university.edu" },
-    { name: "Carol Brown", designation: "Lecturer", email: "carol.brown@university.edu" },
+    { id: "f1", name: "John Doe", designation: "Professor", email: "john.doe@university.edu" },
+    { id: "f2", name: "Jane Smith", designation: "Lecturer", email: "jane.smith@university.edu" },
+    { id: "f3", name: "Alice Johnson", designation: "Associate Professor", email: "alice.johnson@university.edu" },
+    { id: "f4", name: "Bob Williams", designation: "Assistant Professor", email: "bob.williams@university.edu" },
+    { id: "f5", name: "Carol Brown", designation: "Lecturer", email: "carol.brown@university.edu" },
   ],
   courses: [
-    { code: "CS101", name: "Introduction to Programming", enrolledStudents: 120 },
-    { code: "CS201", name: "Data Structures", enrolledStudents: 90 },
-    { code: "CS301", name: "Algorithms", enrolledStudents: 75 },
-    { code: "CS401", name: "Artificial Intelligence", enrolledStudents: 60 },
-    { code: "CS501", name: "Machine Learning", enrolledStudents: 45 },
+    { id: "c1", code: "CS101", name: "Introduction to Programming", enrolledStudents: 120 },
+    { id: "c2", code: "CS201", name: "Data Structures", enrolledStudents: 90 },
+    { id: "c3", code: "CS301", name: "Algorithms", enrolledStudents: 75 },
+    { id: "c4", code: "CS401", name: "Artificial Intelligence", enrolledStudents: 60 },
+    { id: "c5", code: "CS501", name: "Machine Learning", enrolledStudents: 45 },
   ],
   studentReports: [
-    { name: "Emma Davis", year: "3rd", gpa: 3.8 },
-    { name: "Liam Wilson", year: "2nd", gpa: 3.5 },
-    { name: "Olivia Moore", year: "4th", gpa: 3.9 },
-    { name: "Noah Taylor", year: "1st", gpa: 3.2 },
-    { name: "Ava Anderson", year: "3rd", gpa: 3.7 },
+    { id: "s1", name: "Emma Davis", year: "3rd", gpa: 3.8 },
+    { id: "s2", name: "Liam Wilson", year: "2nd", gpa: 3.5 },
+    { id: "s3", name: "Olivia Moore", year: "4th", gpa: 3.9 },
+    { id: "s4", name: "Noah Taylor", year: "1st", gpa: 3.2 },
+    { id: "s5", name: "Ava Anderson", year: "3rd", gpa: 3.7 },
   ],
   performanceData: [
     { month: "Jan", studentPerformance: 75, facultyPerformance: 85 },
@@ -85,22 +90,76 @@ const mockDepartmentData: DepartmentData = {
     { name: "CS401", students: 60 },
     { name: "CS501", students: 45 },
   ],
+  allStudents: [
+    { id: "s1", name: "Emma Davis", year: "3rd", major: "Computer Science", gpa: 3.8 },
+    { id: "s2", name: "Liam Wilson", year: "2nd", major: "Computer Science", gpa: 3.5 },
+    { id: "s3", name: "Olivia Moore", year: "4th", major: "Computer Science", gpa: 3.9 },
+    { id: "s4", name: "Noah Taylor", year: "1st", major: "Computer Science", gpa: 3.2 },
+    { id: "s5", name: "Ava Anderson", year: "3rd", major: "Computer Science", gpa: 3.7 },
+    { id: "s6", name: "Ethan Martinez", year: "2nd", major: "Computer Science", gpa: 3.6 },
+    { id: "s7", name: "Sophia Lee", year: "4th", major: "Computer Science", gpa: 3.9 },
+    { id: "s8", name: "Mason Clark", year: "1st", major: "Computer Science", gpa: 3.3 },
+    { id: "s9", name: "Isabella Rodriguez", year: "3rd", major: "Computer Science", gpa: 3.7 },
+    { id: "s10", name: "William Turner", year: "2nd", major: "Computer Science", gpa: 3.5 },
+  ],
 };
 
 const COLORS = ['#FFD700', '#90EE90', '#87CEFA', '#FFA07A'];
 
 export default function EnhancedDepartmentHeadPage() {
-  const [departmentData, setDepartmentData] = useState<DepartmentData | null>(null);
+  const [departmentData, setDepartmentData] = useState<DepartmentData>(initialDepartmentData);
+  const [newLecturer, setNewLecturer] = useState({ name: '', email: '', designation: '' });
+  const [selectedLecturer, setSelectedLecturer] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [dutyDescription, setDutyDescription] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    // Here you would fetch department data from your API or backend
-    setDepartmentData(mockDepartmentData);
-  }, []);
+  const handleAllocateCourse = () => {
+    if (selectedLecturer && selectedCourse) {
+      setDepartmentData(prevData => ({
+        ...prevData,
+        courses: prevData.courses.map(course =>
+          course.id === selectedCourse ? { ...course, lecturer: selectedLecturer } : course
+        )
+      }));
+      alert(`Allocated course ${selectedCourse} to lecturer ${selectedLecturer}`);
+    }
+  };
 
-  if (!departmentData) {
-    return <div>Loading...</div>;
-  }
+  const handleAddLecturer = () => {
+    if (newLecturer.name && newLecturer.email && newLecturer.designation) {
+      const newId = `f${departmentData.facultyMembers.length + 1}`;
+      setDepartmentData(prevData => ({
+        ...prevData,
+        facultyMembers: [...prevData.facultyMembers, { id: newId, ...newLecturer }],
+        totalFaculty: {
+          ...prevData.totalFaculty,
+          [newLecturer.designation.toLowerCase() + 's']: (prevData.totalFaculty[newLecturer.designation.toLowerCase() + 's'] || 0) + 1
+        }
+      }));
+      setNewLecturer({ name: '', email: '', designation: '' });
+      alert(`Added new lecturer: ${newLecturer.name}`);
+    }
+  };
+
+  const handleAssignDuty = () => {
+    if (selectedLecturer && dutyDescription) {
+      alert(`Assigned duty "${dutyDescription}" to lecturer ${selectedLecturer}`);
+      setDutyDescription('');
+    }
+  };
+
+  const handleMentorLecturer = (mentorId: string, menteeId: string) => {
+    alert(`Assigned mentor ${mentorId} to mentee ${menteeId}`);
+  };
+
+  const handleAttendCourse = (lecturerId: string, courseId: string) => {
+    alert(`Lecturer ${lecturerId} is attending course ${courseId}`);
+  };
+
+  const handleAllocateTimeSlot = (courseId: string, timeSlot: string) => {
+    alert(`Allocated time slot ${timeSlot} to course ${courseId}`);
+  };
 
   return (
     <div className="min-h-screen bg-green-50 p-4">
@@ -196,6 +255,7 @@ export default function EnhancedDepartmentHeadPage() {
                             <TableHead>Code</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Enrolled Students</TableHead>
+                            <TableHead>Lecturer</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -204,6 +264,7 @@ export default function EnhancedDepartmentHeadPage() {
                               <TableCell>{course.code}</TableCell>
                               <TableCell>{course.name}</TableCell>
                               <TableCell>{course.enrolledStudents}</TableCell>
+                              <TableCell>{course.lecturer || 'Not assigned'}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -218,6 +279,7 @@ export default function EnhancedDepartmentHeadPage() {
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-white">
+                      
                       <DialogHeader>
                         <DialogTitle>Student Reports</DialogTitle>
                       </DialogHeader>
@@ -303,7 +365,7 @@ export default function EnhancedDepartmentHeadPage() {
                       dataKey="students"
                     >
                       {departmentData.courseEnrollment.map((entry, index) => (
-                        <Cell key={`cell-₦{index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -325,9 +387,277 @@ export default function EnhancedDepartmentHeadPage() {
                       <span>{report.name} ({report.year} year)</span>
                       <span>GPA: {report.gpa}</span>
                     </li>
-                  
                   ))}
                 </ul>
+              </CardContent>
+            </Card>
+
+            {/* Course Allocation */}
+            <Card className="bg-blue-100">
+              <CardHeader>
+                <CardTitle className="text-blue-800">Course Allocation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select onValueChange={setSelectedLecturer}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Lecturer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentData.facultyMembers.map((faculty) => (
+                      <SelectItem key={faculty.id} value={faculty.id}>{faculty.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select onValueChange={setSelectedCourse}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentData.courses.map((course) => (
+                      <SelectItem key={course.id} value={course.id}>{course.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button className="mt-2 w-full" onClick={handleAllocateCourse}>
+                  Allocate Course
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Add Lecturer */}
+            <Card className="bg-purple-100">
+              <CardHeader>
+                <CardTitle className="text-purple-800">Add New Lecturer</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Input
+                  className="mb-2"
+                  placeholder="Lecturer Name"
+                  value={newLecturer.name}
+                  onChange={(e) => setNewLecturer({ ...newLecturer, name: e.target.value })}
+                />
+                <Input
+                  className="mb-2"
+                  placeholder="Email"
+                  value={newLecturer.email}
+                  onChange={(e) => setNewLecturer({ ...newLecturer, email: e.target.value })}
+                />
+                <Select
+                  onValueChange={(value) => setNewLecturer({ ...newLecturer, designation: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Designation" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Lecturer">Lecturer</SelectItem>
+                    <SelectItem value="Professor">Professor</SelectItem>
+                    <SelectItem value="Associate Professor">Associate Professor</SelectItem>
+                    <SelectItem value="Assistant Professor">Assistant Professor</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button className="mt-2 w-full" onClick={handleAddLecturer}>
+                  Add Lecturer
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Assign Duties */}
+            <Card className="bg-green-100">
+              <CardHeader>
+                <CardTitle className="text-green-800">Assign Duties</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select onValueChange={setSelectedLecturer}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Lecturer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentData.facultyMembers.map((faculty) => (
+                      <SelectItem key={faculty.id} value={faculty.id}>{faculty.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  className="my-2"
+                  placeholder="Duty Description"
+                  value={dutyDescription}
+                  onChange={(e) => setDutyDescription(e.target.value)}
+                />
+                <Button className="w-full" onClick={handleAssignDuty}>
+                  Assign Duty
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Lecturer Performance */}
+            <Card className="col-span-full bg-yellow-100">
+              <CardHeader>
+                <CardTitle className="text-yellow-800">Lecturer Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={departmentData.facultyMembers.map(f => ({ name: f.name, performance: Math.random() * 100 }))}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="performance" fill="#8884d8" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Mentoring Program */}
+            <Card className="bg-indigo-100">
+              <CardHeader>
+                <CardTitle className="text-indigo-800">Mentoring Program</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select onValueChange={(mentorId) => handleMentorLecturer(mentorId, 'selectedMenteeId')}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Mentor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentData.facultyMembers.filter(f => f.designation === 'Professor').map((faculty) => (
+                      <SelectItem key={faculty.id} value={faculty.id}>{faculty.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select onValueChange={(menteeId) => handleMentorLecturer('selectedMentorId', menteeId)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Mentee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentData.facultyMembers.filter(f => f.designation === 'Lecturer').map((faculty) => (
+                      <SelectItem key={faculty.id} value={faculty.id}>{faculty.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button className="mt-2 w-full" onClick={() => handleMentorLecturer('selectedMentorId', 'selectedMenteeId')}>
+                  Assign Mentor
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Course Attendance */}
+            <Card className="bg-red-100">
+              <CardHeader>
+                <CardTitle className="text-red-800">Course Attendance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select onValueChange={(lecturerId) => handleAttendCourse(lecturerId, 'selectedCourseId')}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Lecturer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentData.facultyMembers.map((faculty) => (
+                      <SelectItem key={faculty.id} value={faculty.id}>{faculty.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select onValueChange={(courseId) => handleAttendCourse('selectedLecturerId', courseId)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentData.courses.map((course) => (
+                      <SelectItem key={course.id} value={course.id}>{course.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button className="mt-2 w-full" onClick={() => handleAttendCourse('selectedLecturerId', 'selectedCourseId')}>
+                  Record Attendance
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Timetable Allocation */}
+            <Card className="bg-pink-100">
+              <CardHeader>
+                <CardTitle className="text-pink-800">Timetable Allocation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select onValueChange={(courseId) => handleAllocateTimeSlot(courseId, 'selectedTimeSlot')}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentData.courses.map((course) => (
+                      <SelectItem key={course.id} value={course.id}>{course.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select onValueChange={(timeSlot) => handleAllocateTimeSlot('selectedCourseId', timeSlot)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Time Slot" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monday-9am">Monday 9:00 AM</SelectItem>
+                    <SelectItem value="tuesday-2pm">Tuesday 2:00 PM</SelectItem>
+                    <SelectItem value="wednesday-11am">Wednesday 11:00 AM</SelectItem>
+                    {/* Add more time slots as needed */}
+                  </SelectContent>
+                </Select>
+                <Button className="mt-2 w-full" onClick={() => handleAllocateTimeSlot('selectedCourseId', 'selectedTimeSlot')}>
+                  Allocate Time Slot
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* New: All Lecturers Table */}
+            <Card className="col-span-full bg-blue-50">
+              <CardHeader>
+                <CardTitle className="text-blue-800">All Lecturers</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Designation</TableHead>
+                      <TableHead>Email</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {departmentData.facultyMembers.map((faculty) => (
+                      <TableRow key={faculty.id}>
+                        <TableCell>{faculty.name}</TableCell>
+                        <TableCell>{faculty.designation}</TableCell>
+                        <TableCell>{faculty.email}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            {/* New: All Students Table */}
+            <Card className="col-span-full bg-green-50">
+              <CardHeader>
+                <CardTitle className="text-green-800">All Students</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Year</TableHead>
+                      <TableHead>Major</TableHead>
+                      <TableHead>GPA</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {departmentData.allStudents.map((student) => (
+                      <TableRow key={student.id}>
+                        <TableCell>{student.name}</TableCell>
+                        <TableCell>{student.year}</TableCell>
+                        <TableCell>{student.major}</TableCell>
+                        <TableCell>{student.gpa}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
 
@@ -414,30 +744,6 @@ export default function EnhancedDepartmentHeadPage() {
                         <p>Upcoming Meetings: 3</p>
                         <p>Recent Announcements: 2</p>
                         <Button className="w-full mt-4">Compose New Message</Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      {/* <Button variant="outline" className="bg-yellow-200 text-green-800 hover:bg-yellow-300">
-                        <DollarSign className="mr-2 h-4 w-4" />
-                        Budget
-                      </Button> */}
-                    </DialogTrigger>
-                    <DialogContent className="bg-white">
-                      <DialogHeader>
-                        <DialogTitle>Department Budget</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-2">
-                        <p>Total Budget: ₦1,500,000</p>
-                        <p>Spent: ₦750,000</p>
-                        <p>Remaining: ₦750,000</p>
-                        <p>Major Expenses:</p>
-                        <ul className="list-disc list-inside">
-                          <li>Faculty Salaries: ₦500,000</li>
-                          <li>Research Grants: ₦200,000</li>
-                          <li>Equipment: ₦50,000</li>
-                        </ul>
                       </div>
                     </DialogContent>
                   </Dialog>
