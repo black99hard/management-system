@@ -40,54 +40,52 @@ export default function LoginPage() {
   };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-    const formData = new FormData(e.currentTarget);
-    const username = formData.get('username') as string;
-    const password = formData.get('password') as string;
+  e.preventDefault();
+  setError(null);
+  const formData = new FormData(e.currentTarget);
+  const username = formData.get('username') as string;
+  const password = formData.get('password') as string;
 
-    if (!selectedRole) {
-      setError('Please select a role before logging in.');
-      return;
-    }
+  if (!selectedRole) {
+    setError('Please select a role before logging in.');
+    return;
+  }
 
-    try {
-      const result = await signIn('credentials', {
-        username,
-        password,
-        role: selectedRole,
-        redirect: false,
-      });
+  // Add specific credential check for HOD role
+  if (username !== 'hod' || password !== '12345678') {
+    setError('Invalid credentials. Please try again.');
+    return;
+  }
 
-      if (result?.error) {
-        setError(result.error);
-        console.error(result.error);
-      } else if (result?.ok) {
-        // Redirect based on user role
-        switch (selectedRole) {
-          // case 'Employee':
-          //   router.push('/employee/');
-          //   break;
-          // case 'Lecturer':
-          //   router.push('/lecturer/');
-          //   break;
-          case 'HOD':
-            router.push('/department-head/');
-            break;
-          // case 'Admin':
-          //   router.push('/admin/');
-          //   break;
-          default:
-            router.push('/');
-        }
-      } else {
-        setError('An unexpected error occurred. Please try again.');
+  try {
+    const result = await signIn('credentials', {
+      username,
+      password,
+      role: selectedRole,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError(result.error);
+      console.error(result.error);
+    } else if (result?.ok) {
+      // Redirect based on user role
+      switch (selectedRole) {
+        case 'HOD':
+          router.push('/department-head/');
+          break;
+        default:
+          router.push('/');
       }
-    } catch (error) {
-      console.error('Login error:', error);
+    } else {
       setError('An unexpected error occurred. Please try again.');
     }
-  };
+  } catch (error) {
+    console.error('Login error:', error);
+    setError('An unexpected error occurred. Please try again.');
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 p-4">
